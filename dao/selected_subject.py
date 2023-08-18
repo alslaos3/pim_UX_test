@@ -1,6 +1,7 @@
 class NoDataFoundedError(Exception):
     pass
 
+
 class SelectedSubjectData:
     _data = {}
 
@@ -56,3 +57,17 @@ class SelectedSubjectData:
             raise NoDataFoundedError
         else:
             return cls._data.get('supervisor')
+
+    @classmethod
+    def getMeasurementDate(cls):
+        if not cls._data.get('measurementDate'):
+            raise NoDataFoundedError
+        else:
+            return cls._data.get('measurementDate')
+
+    @classmethod
+    def getUUID(cls):
+        if not cls._data.get('uuid'):
+            raise NoDataFoundedError
+        else:
+            return cls._data.get('uuid')

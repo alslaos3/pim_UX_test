@@ -36,7 +36,7 @@ class UserDAO(QObject):
     def connectDatabase(cls):
         if cls._db is None:
             db = QSqlDatabase.addDatabase("QODBC")
-            db.setDatabaseName("DRIVER={MySQL ODBC 8.0 Unicode Driver};SERVER=localhost;DATABASE=testdb;UID=root;PWD=ekqdms1")
+            db.setDatabaseName("DRIVER={MySQL ODBC 8.0 Unicode Driver};SERVER=192.168.1.248;DATABASE=testdb;UID=username;PWD=password")
             if db.open():
                 cls._db = db
             else:

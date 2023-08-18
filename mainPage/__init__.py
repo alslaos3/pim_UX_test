@@ -2,6 +2,8 @@ from PySide6.QtCore import QPropertyAnimation, Property, Signal, Qt, Slot
 from PySide6.QtGui import QPainter, QColor, Qt
 from PySide6.QtSql import QSqlDatabase
 from PySide6.QtWidgets import QWidget, QStackedWidget, QVBoxLayout, QLabel, QHBoxLayout, QMessageBox, QGroupBox, QPushButton
+
+from dao.controller_dao import ControllerDAO
 from .blankTestPage import BlankTestPage
 from .subjectListPage import SubjectListPage
 from .measurementListPage import MeasurementListPage
@@ -155,6 +157,12 @@ class MainPage(QWidget):
         self.measurementListPage.btnPredict.clicked.connect(self.setPrediction)
         self.measurementPage.btnBack.clicked.connect(self.setBackClicked)
         self.predictionPage.btnBack.clicked.connect(self.setBackClicked)
+        # ControllerDAO.getInstance().getAPI().exam.focusController.statusSignal.connect(self.getStatus)
+        # ControllerDAO.getInstance().getAPI().exam.focusController.emitStatusSignal()
+
+    @Slot(str)
+    def getStatus(self, status):
+        print(status)
 
     def setWidgetIndex(self, index, btnCurrent, btnOthers):
         self.stackedWidget.setCurrentIndex(index)

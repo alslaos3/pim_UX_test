@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QWidget, QPushButton, QStackedWidget, QVBoxLayout,
 # from PySide6.QtGui import
 # from PySide6.QtCore import
 from dao import UserDAO
+from dao.controller_dao import ControllerDAO
 from .signInWidget import SignInWidget
 from .signUpWidget import SignUpWidget
 
@@ -31,6 +32,7 @@ class LoginPage(QWidget):
         self.signUpWidget.btnHome.clicked.connect(self.setSignInWidget)
         self.signUpWidget.btnHome.clicked.connect(self.signUpWidget.clearForm)
         UserDAO.getInstance().signUpSuccessSignal.connect(self.afterSignUp)
+        ControllerDAO.initFocusing()
 
     def setSignInWidget(self):
         self.stackedWidget.setCurrentIndex(0)

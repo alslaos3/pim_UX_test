@@ -1,15 +1,20 @@
-from PySide6.QtCore import Slot, Qt, Signal
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGroupBox, QPushButton, QProgressBar, QHBoxLayout, QFormLayout
+import numpy as np
+from PySide6.QtCore import Slot, Qt, Signal, QTimer
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGroupBox, QPushButton, QProgressBar, QHBoxLayout, \
+    QFormLayout
+
+from dao.controller_dao import ControllerDAO
+from dao.save_db_dao import SaveDAO
 from .graphWidget import GraphWidget
 from dao.selected_subject import SelectedSubjectData
 
 
 class MeasurementPage(QWidget):
-
     measurementBtnClicked = Signal()
 
     def __init__(self):
         super(MeasurementPage, self).__init__()
+        self.stageNum = -1
         self.measurementBtnClicked.connect(self.setLabels)
 
         hboxBack = QHBoxLayout()
@@ -41,6 +46,7 @@ class MeasurementPage(QWidget):
         self.graphWidget = GraphWidget()
 
         self.btnPredict = QPushButton("Run Analysis")
+        self.btnRun.clicked.connect(self.startMeasurement)
 
         vbox = QVBoxLayout()
         vbox.addLayout(hboxBack)
@@ -49,6 +55,39 @@ class MeasurementPage(QWidget):
         vbox.addWidget(self.graphWidget)
         vbox.addWidget(self.btnPredict)
         self.setLayout(vbox)
+
+    def startMeasurement(self):
+        # INITS
+        self.progressBar.setValue(0)
+        self.stageNum = -1
+        # CONNECTS
+        ControllerDAO.getAPI().exam.spec.resGetSpectrum.connect(self.graphWidget.getPlotData)
+        ControllerDAO.getAPI().exam.focusController.measuredSignal.connect(self.getMeasuredSignal)
+        ControllerDAO.getAPI().exam.focusController.focusCompleteSignal.connect(self.getMeasurementData)
+        # METHOD
+        ControllerDAO.defaultFocusing()
+
+    def endMeasurement(self):
+        # CONNECTS
+        ControllerDAO.getAPI().exam.spec.resGetSpectrum.disconnect(self.graphWidget.getPlotData)
+        ControllerDAO.getAPI().exam.focusController.measuredSignal.disconnect(self.getMeasuredSignal)
+        ControllerDAO.getAPI().exam.focusController.focusCompleteSignal.disconnect(self.getMeasurementData)
+
+    @Slot(int, int, int)
+    def getMeasuredSignal(self, current_round, total_round, stage_num):
+        if self.stageNum != stage_num:
+            self.stageNum += 1
+            self.progressBar.setMaximum(total_round)
+            self.progressBar.setValue(0)
+        else:
+            self.progressBar.setValue(current_round)
+        print(current_round, total_round, stage_num)
+
+    @Slot(np.ndarray)
+    def getMeasurementData(self, intensity):
+        SaveDAO.saveMeasurementData(SelectedSubjectData.getChartNum(), intensity)
+        print(SelectedSubjectData.getChartNum(), intensity)
+        self.endMeasurement()
 
     @Slot()
     def setLabels(self):

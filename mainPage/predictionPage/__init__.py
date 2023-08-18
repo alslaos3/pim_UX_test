@@ -1,11 +1,13 @@
+import random
+
 from PySide6.QtCore import Slot, Qt, Signal
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGroupBox, QPushButton, QProgressBar, QHBoxLayout, QFormLayout
-from .graphWidget import GraphWidget
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGroupBox, QPushButton, QProgressBar, QHBoxLayout, \
+    QFormLayout
+from .graphWidget import ResultGraphWidget
 from dao.selected_subject import SelectedSubjectData
 
 
 class PredictionPage(QWidget):
-
     predictionBtnClicked = Signal()
 
     def __init__(self):
@@ -24,11 +26,15 @@ class PredictionPage(QWidget):
         self.lblName = QLabel("")
         self.lblBirthDate = QLabel("")
         self.lblProfessor = QLabel("")
+        self.lblMeasureDate = QLabel("")
+        self.lblSupervisor = QLabel("")
 
         formInfo.addRow("차트번호 : ", self.lblChartNum)
         formInfo.addRow("성명 : ", self.lblName)
         formInfo.addRow("생년월일 : ", self.lblBirthDate)
         formInfo.addRow("담당교수 : ", self.lblProfessor)
+        formInfo.addRow("측정 시기 : ", self.lblMeasureDate)
+        formInfo.addRow("측정 담당자 : ", self.lblSupervisor)
         gBoxInfo.setLayout(formInfo)
 
         self.btnRun = QPushButton("Run")
@@ -38,7 +44,7 @@ class PredictionPage(QWidget):
         hboxMeasure.addWidget(self.btnRun)
         hboxMeasure.addWidget(self.progressBar)
 
-        self.graphWidget = GraphWidget()
+        self.graphWidget = ResultGraphWidget()
 
         self.btnAnalysis = QPushButton("End")
 
@@ -49,6 +55,7 @@ class PredictionPage(QWidget):
         vbox.addWidget(self.graphWidget)
         vbox.addWidget(self.btnAnalysis)
         self.setLayout(vbox)
+        self.btnRun.clicked.connect(self.graphWidget.update)
 
     @Slot()
     def setLabels(self):
@@ -56,3 +63,6 @@ class PredictionPage(QWidget):
         self.lblName.setText(SelectedSubjectData.getName())
         self.lblBirthDate.setText(SelectedSubjectData.getBirthDate().toString(Qt.ISODate))
         self.lblProfessor.setText(SelectedSubjectData.getProfessor())
+        self.lblMeasureDate.setText(SelectedSubjectData.getMeasurementDate().toString(Qt.ISODate))
+        self.lblSupervisor.setText(SelectedSubjectData.getSupervisor())
+

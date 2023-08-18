@@ -25,8 +25,8 @@ class PimBody(QApplication):
         self.w.setCentralWidget(self.loginPage)
 
         self.setUpScreens()
-        self.w.showFullScreen()
-
+        # self.w.showFullScreen()
+        self.w.show()
     @Slot()
     def showMainPage(self):
         self.mainPage = MainPage()
@@ -45,6 +45,7 @@ class PimBody(QApplication):
             rect = screen.geometry()
             if screen.isPortrait(screen.orientation()):
                 self.w.move(rect.left(), rect.top())
+
 
 
 if __name__ == "__main__":

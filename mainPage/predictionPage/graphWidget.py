@@ -1,26 +1,45 @@
-import sys
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtWidgets import QWidget, QApplication, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QSizePolicy
+from PySide6.QtCore import Slot, QObject, Property, Signal, QUrl, Qt
+from PySide6.QtQml import QQmlApplicationEngine, QQmlComponent
+from datetime import datetime
+from qroundprogressbar import QRoundProgressBar
+import os
+import random
 
-# from PySide6.QtCore import
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QApplication
-# from PySide6.QtGui import
-import pyqtgraph as pg
-import numpy as np
-
-
-class GraphWidget(QWidget):
+class ResultGraphWidget(QWidget):
+    predictedValue = 75
+    offset = 100 - predictedValue
+    timestamp = float
+    goHomeSignal = Signal()
 
     def __init__(self):
-        super(GraphWidget, self).__init__()
+        super(ResultGraphWidget, self).__init__()
 
-        self.plotWidget = pg.PlotWidget()
+        self.roundProgressBar = QRoundProgressBar()
+        self.roundProgressBar.setObjectName("RoundProgressBar")
+        self.roundProgressBar.setFixedSize(400, 400)
+        self.roundProgressBar.setDecimals(0)
+        self.roundProgressBar.setValue(0)
 
+        self.roundProgressBar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)  # New line
         vbox = QVBoxLayout()
-        vbox.addWidget(self.plotWidget)
+        hboxAlign = QHBoxLayout()
+        hboxAlign.addStretch(1)
+        hboxAlign.addWidget(self.roundProgressBar)
+        hboxAlign.addStretch(1)
+        vbox.addLayout(hboxAlign)
         self.setLayout(vbox)
+
+    def update(self):
+        value = random.randint(0, 100)
+        self.roundProgressBar.setValue(value)
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    w = GraphWidget()
+    app = QApplication([])
+
+    w = ResultGraphWidget()
+
     w.show()
-    sys.exit(app.exec())
+    app.exec()

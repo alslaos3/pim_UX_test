@@ -13,6 +13,8 @@ class SubjectRecordTable(QWidget):
 
     dictSubject = {}
 
+    measurementListSignal = Signal()
+
     def __init__(self):
         super(SubjectRecordTable, self).__init__()
 
@@ -23,6 +25,7 @@ class SubjectRecordTable(QWidget):
         vbox = QVBoxLayout()
         vbox.addWidget(self.table)
         self.setLayout(vbox)
+        self.dao.rowSelectedSignal.connect(self.transferToMeasurementListSignal)
 
     @Slot(int, str, str, str, str, str)
     def searchClicked(self, page, chartNum, name, professor, searchFrom, searchTo):
@@ -36,4 +39,9 @@ class SubjectRecordTable(QWidget):
         elif page == 3:
             print("this is analysis")
             self.dao.queryAnalysisList(chartNum, name, professor, searchFrom, searchTo)
+
+    @Slot()
+    def transferToMeasurementListSignal(self):
+        self.measurementListSignal.emit()
+
 

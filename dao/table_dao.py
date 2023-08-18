@@ -22,7 +22,7 @@ class SqlQueryModelAlignCenter(QSqlQueryModel):
 
 
 class TableDAO(QObject):
-    rowSelectedSignal = Signal(str)
+    rowSelectedSignal = Signal()
 
     def __init__(self):
         super(TableDAO, self).__init__()
@@ -58,6 +58,7 @@ class TableDAO(QObject):
             selected_data[header] = value
 
         SelectedSubjectData.setData(selected_data)
+        self.rowSelectedSignal.emit()
 
     def makeModel(self):
         return self._model
@@ -110,7 +111,7 @@ class TableDAO(QObject):
         if where_conditions:
             where_clause = "WHERE " + " AND ".join(where_conditions)
         SQL = f"""
-            SELECT s.chartNum, s.name, s.birthDate, s.professor, s.supervisor, m.measurementDate
+            SELECT s.chartNum, s.name, s.birthDate, s.professor, s.supervisor, m.measurementDate, m.uuid
             FROM subject_test s
             JOIN measurement_test m
             ON s.chartNum = m.chartNum
