@@ -18,7 +18,6 @@ class BlankTestPage(QWidget):
         vbox.addWidget(self.btnStart)
         self.setLayout(vbox)
 
-
     def StartBlankTest(self):
-        ControllerDAO.initFocusing()
+        ControllerDAO.getAPI().restartFocusing()
 

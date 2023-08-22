@@ -1,19 +1,22 @@
 import random
 
+import numpy as np
 from PySide6.QtCore import Slot, Qt, Signal
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGroupBox, QPushButton, QProgressBar, QHBoxLayout, \
     QFormLayout
+
+from dao.save_db_dao import SaveDAO
 from .graphWidget import ResultGraphWidget
 from dao.selected_subject import SelectedSubjectData
 
 
 class PredictionPage(QWidget):
     predictionBtnClicked = Signal()
+    temp_signal = Signal(np.ndarray)
 
     def __init__(self):
         super(PredictionPage, self).__init__()
         self.predictionBtnClicked.connect(self.setLabels)
-
         hboxBack = QHBoxLayout()
         self.btnBack = QPushButton("←")
         hboxBack.addWidget(self.btnBack)
@@ -38,6 +41,8 @@ class PredictionPage(QWidget):
         gBoxInfo.setLayout(formInfo)
 
         self.btnRun = QPushButton("Run")
+        self.btnRun.clicked.connect(self.startPrediction)
+
         self.progressBar = QProgressBar()
 
         hboxMeasure = QHBoxLayout()
@@ -66,3 +71,27 @@ class PredictionPage(QWidget):
         self.lblMeasureDate.setText(SelectedSubjectData.getMeasurementDate().toString(Qt.ISODate))
         self.lblSupervisor.setText(SelectedSubjectData.getSupervisor())
 
+    @Slot(str)
+    def getPredictionData(self, UUID):
+        rand = random.randint(50,100)
+        SaveDAO.savePredictionData(SelectedSubjectData.getChartNum(), UUID, rand)
+        print(SelectedSubjectData.getChartNum(), UUID)
+        self.progressBar.setValue(100)
+        self.graphWidget.update(rand)
+        self.endPrediction()
+
+    def startPrediction(self):
+        # INITS
+        self.progressBar.setValue(0)
+        # self.stageNum = -1
+        # CONNECTS
+        UUID = SelectedSubjectData.getUUID()
+        print(UUID)
+        # intensity = np.load(file_name)[1]
+        self.temp_signal.connect(self.getPredictionData)
+        # METHOD
+        self.temp_signal.emit(UUID)
+
+    def endPrediction(self):
+        # CONNECTS
+        self.temp_signal.disconnect(self.getPredictionData)

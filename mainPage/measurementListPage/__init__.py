@@ -1,4 +1,4 @@
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QItemSelection
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton
 
 from .graphWidget import GraphWidget
@@ -33,3 +33,8 @@ class MeasurementListPage(QWidget):
     def getRowSelectedSignal(self):
         self.graphWidget.show()
         self.graphWidget.getPlotData()
+
+    def mousePressEvent(self, event):
+        if not self.subjectRecordTable.table.geometry().contains(event.pos()):
+            self.subjectRecordTable.table.clearSelection()
+        super(MeasurementListPage, self).mousePressEvent(event)

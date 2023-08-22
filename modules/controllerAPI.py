@@ -29,6 +29,23 @@ stageSettings = {
 }
 
 
+class Status:
+    DEFAULT = 0
+    IDLE = 1
+    CLOSING = 2
+    CLOSED = 3
+
+    @classmethod
+    def get_status(cls, code):
+        status_dict = {
+            cls.DEFAULT: "DEFAULT",
+            cls.IDLE: "IDLE",
+            cls.CLOSING: "CLOSING",
+            cls.CLOSED: "CLOSED",
+        }
+        return status_dict.get(code, "UNKNOWN")
+
+
 class FocusControllerExam(QObject):
     focusController = FocusController(testing=True)
     focusController.setStartPosition(stageSettings["top"])
@@ -40,6 +57,8 @@ class FocusControllerExam(QObject):
     laser = Laser()
     spec = Spectrometer()
     stage = Stage(1)
+
+    status = Status.DEFAULT
 
     statusMessage = Signal(str)
     logMessage = Signal(str)
@@ -61,6 +80,8 @@ class FocusControllerExam(QObject):
     resGetSpectrum = Signal(np.ndarray)
     exePositionOver = Signal(float, float)
 
+    closeAbleSignal = Signal()
+
     def __init__(self):
         super().__init__()
 
@@ -71,7 +92,6 @@ class FocusControllerExam(QObject):
         self.focusController.reqConnectDevice.connect(self.onReqConnectDevice)
         self.focusController.reqMoveStage.connect(self.onReqMoveStage)
         self.focusController.reqStopStage.connect(self.onReqStopStage)
-        self.focusController.reqGetSpectrum.connect(self.onReqGetSpectrum)
 
         # 포커스 컨트롤러 -> 일반 시그널
         self.focusController.normalLogSignal.connect(self.log_print)
@@ -140,12 +160,30 @@ class FocusControllerExam(QObject):
         else:
             self.log_print(f"{TIME()} {TAG} 스펙트로 미터 초기화 실패")
 
+        self.setStatus(Status.IDLE)
         self.initFocusing()
 
     def close(self):
-        self.laser.close()
-        self.spec.spec.close()
-        self.stage.close()
+        print("exam close")
+        if self.spec.isProcessing:
+            print("processing")
+            self.setStatus(Status.CLOSING)
+            self.spec.stopGetSpectrum()
+            return
+
+        if self.status != Status.CLOSED:
+            print("set status")
+            self.spec.stopGetSpectrum()
+            self.spec.close()
+            self.laser.close()
+            self.stage.close()
+            self.setStatus(Status.CLOSED)
+
+        self.closeAbleFlag = True
+        self.closeAbleSignal.emit()
+
+    def setStatus(self, status):
+        self.status = status
 
     @Slot(str, bool)
     def log_print(self, message, log=True):
@@ -275,12 +313,14 @@ class FocusControllerExam(QObject):
             self.reqStopStage.emit(0)
             return
 
-    def onReqGetSpectrum(self):
-        self.spec.getSpectrum()
-
     @Slot(np.ndarray)
     def onResGetSpectrum(self, spectrumInfo):
-        self.resGetSpectrum.emit(spectrumInfo)
+        if self.status == Status.IDLE:
+            self.resGetSpectrum.emit(spectrumInfo)
+            return
+
+        if self.status == Status.CLOSING:
+            self.close()
 
     def onResSetIntegrationTime(self):
         self.resSetIntegrationTime.emit()
@@ -318,10 +358,12 @@ class ControllerAPI(QObject):
         print("ControllerAPI OPENED!!!")
 
     def closeEvent(self, event):
-        # while True:
-        #     print("@@@@@@@")
-        #     if self.exam.spec.status == 0:
-        self.exam.close()
+        if hasattr(self.exam, "closeAbleFlag") and self.exam.closeAbleFlag:
+            self.exam.close()
+            event.accept()
+        else:
+            self.exam.close()
+            event.ignore()
 
     # Focusing
     def initFocusing(self):

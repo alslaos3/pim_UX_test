@@ -4,6 +4,7 @@ from PySide6.QtSql import QSqlQuery, QSqlDatabase
 from .user_dao import UserDAO
 from .supervisor_dao import SupervisorDAO
 
+
 class ChartNumAlreadyExistsError(Exception):
     pass
 
@@ -38,12 +39,14 @@ class SubjectDAO(QObject):
         return cls._db
 
     @classmethod
-    def enroll(cls, _name: str, _birthDate: str, _gender: str, _phoneNum: str, _professor: str, _supervisor: str, _enrollDate: QDate):
+    def enroll(cls, _chartNum: int, _name: str, _birthDate: str, _gender: str, _phoneNum: str, _professor: str,
+               _supervisor: str, _enrollDate: QDate):
         cls.connectDatabase()
         SQL = QSqlQuery(cls._db)
         SQL.prepare(
-            "INSERT INTO subject_test (name, birthDate, gender, phoneNum, professor, supervisor, enrollDate)"
-            "VALUES (:name, :birthDate, :gender, :phoneNum, :professor, :supervisor, :enrollDate)")
+            "INSERT INTO subject_test (chartNum, name, birthDate, gender, phoneNum, professor, supervisor, enrollDate)"
+            "VALUES (:chartNum, :name, :birthDate, :gender, :phoneNum, :professor, :supervisor, :enrollDate)")
+        SQL.bindValue(":chartNum", _chartNum)
         SQL.bindValue(":name", _name)
         SQL.bindValue(":birthDate", _birthDate)
         SQL.bindValue(":gender", _gender)
@@ -56,10 +59,11 @@ class SubjectDAO(QObject):
             raise AccessDeniedError("Query error", SQL.lastError().text())
 
         else:
-            SQL.exec_("SELECT name, professor, enrollDate FROM subject_test WHERE chartNum = LAST_INSERT_ID()")
-            if SQL.next():
+            SQL.prepare("SELECT name, professor, enrollDate FROM subject_test WHERE chartNum = :chartNum")
+            SQL.bindValue(":chartNum", _chartNum)
+            if SQL.exec_() and SQL.next():
                 newSubjectInfo = {
-                    'chartNum': SQL.lastInsertId(),
+                    'chartNum': _chartNum,
                     'name': SQL.value(0),
                     'professor': SQL.value(1),
                     'searchFrom': SQL.value(2),
@@ -67,12 +71,8 @@ class SubjectDAO(QObject):
                 }
                 dao = SupervisorDAO()
                 dao.justEnroll = newSubjectInfo
-                print("dao start")
-                print(newSubjectInfo)
-                print(dao.je_chartNum, dao.je_name, dao.je_professor)
-                print("dao ends")
-
                 cls.getInstance().EnrollSuccessSignal.emit()
+
                 return True
 
         return False
@@ -105,3 +105,15 @@ class SubjectDAO(QObject):
             raise ChartNumAlreadyExistsError("User ID already exists")
 
         return False
+
+    @classmethod
+    def getExistProfessors(cls):
+        cls.connectDatabase()
+        SQL = QSqlQuery(cls._db)
+        SQL.exec("SELECT DISTINCT professor FROM subject_test")
+
+        professors = []
+        while SQL.next():
+            professors.append(SQL.value(0))
+
+        return professors

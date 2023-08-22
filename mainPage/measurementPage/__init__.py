@@ -1,7 +1,7 @@
 import numpy as np
 from PySide6.QtCore import Slot, Qt, Signal, QTimer
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QGroupBox, QPushButton, QProgressBar, QHBoxLayout, \
-    QFormLayout
+    QFormLayout, QMessageBox
 
 from dao.controller_dao import ControllerDAO
 from dao.save_db_dao import SaveDAO
@@ -66,12 +66,19 @@ class MeasurementPage(QWidget):
         ControllerDAO.getAPI().exam.focusController.focusCompleteSignal.connect(self.getMeasurementData)
         # METHOD
         ControllerDAO.defaultFocusing()
+        self.setButtonsDisabled()
+
+    def setButtonsDisabled(self, status=True):
+        self.btnRun.setDisabled(status)
+        self.btnPredict.setDisabled(status)
+        self.btnBack.setDisabled(status)
 
     def endMeasurement(self):
         # CONNECTS
         ControllerDAO.getAPI().exam.spec.resGetSpectrum.disconnect(self.graphWidget.getPlotData)
         ControllerDAO.getAPI().exam.focusController.measuredSignal.disconnect(self.getMeasuredSignal)
         ControllerDAO.getAPI().exam.focusController.focusCompleteSignal.disconnect(self.getMeasurementData)
+        self.setButtonsDisabled(False)
 
     @Slot(int, int, int)
     def getMeasuredSignal(self, current_round, total_round, stage_num):

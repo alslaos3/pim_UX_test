@@ -71,3 +71,11 @@ class SelectedSubjectData:
             raise NoDataFoundedError
         else:
             return cls._data.get('uuid')
+
+    @classmethod
+    def setMeasurementDate(cls, date):
+        cls._data['measurementDate'] = date
+
+    @classmethod
+    def setUUID(cls, uuid):
+        cls._data['uuid'] = uuid

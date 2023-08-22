@@ -1,16 +1,22 @@
 from PySide6.QtCore import QRegularExpression, QDate
 from PySide6.QtGui import QRegularExpressionValidator
-from PySide6.QtWidgets import QLineEdit
+from PySide6.QtWidgets import QLineEdit, QComboBox
 from .reg_ex import RegEx
 
 
 class Check:
 
     @staticmethod
-    def checkValidity(instance: QLineEdit, exclude: QRegularExpression, include: QRegularExpression,
+    def checkValidity(instance: QLineEdit or QComboBox, exclude: QRegularExpression, include: QRegularExpression,
                       lang_1: str = "", lang_2: str = "", lang_3: str = ""):
-        if instance.text():
-            match = exclude.match(instance.text()[-1])
+        if isinstance(instance, QLineEdit):
+            text = instance.text()
+        elif isinstance(instance, QComboBox):
+            text = instance.currentText()
+        else:
+            text = instance.text()
+        if text:
+            match = exclude.match(text[-1])
             if match.capturedLength() == 1:
                 instance.setValidator(QRegularExpressionValidator(include, instance))
                 instance.clear()
@@ -18,12 +24,28 @@ class Check:
                 instance.setPlaceholderText(",".join(langs) + "로 입력해 주세요.")
 
     @staticmethod
-    def checkValidityName(instance: QLineEdit):
+    def checkValidityProfName(instance: QComboBox):
         Check.checkValidity(instance, RegEx.except_korean(), RegEx.only_korean(), "한글")
 
     @staticmethod
-    def checkValidityChartNum(instance: QLineEdit):
-        Check.checkValidity(instance, RegEx.except_alphanumeric(), RegEx.only_alphanumeric(), "영문", "숫자")
+    def checkValidityName(instance: QLineEdit):
+        Check.checkValidity(instance, RegEx.except_korean(), RegEx.only_korean(), "한글")
+
+    # @staticmethod
+    # def checkValidityChartNum(instance: QLineEdit):
+    #     Check.checkValidity(instance, RegEx.except_numbers(), RegEx.only_numbers(), "숫자 9자리")
+
+    @staticmethod
+    def checkValidityChartNum(instance: QLineEdit, exclude=RegEx.except_numbers(), include=RegEx.only_numbers(),
+                              lang_1= "숫자 9자리", lang_2: str = "", lang_3: str = ""):
+        text = instance.text()
+        if text:
+            match = exclude.match(text[-1])
+            if match.capturedLength() == 1:
+                instance.setValidator(QRegularExpressionValidator(include, instance))
+                instance.clear()
+                langs = [lang for lang in [lang_1, lang_2, lang_3] if lang]
+                instance.setPlaceholderText(",".join(langs) + "로 입력해 주세요.")
 
     @staticmethod
     def checkValidityUsername(instance: QLineEdit):

@@ -4,6 +4,7 @@ from PySide6.QtSql import QSqlDatabase
 from PySide6.QtWidgets import QWidget, QStackedWidget, QVBoxLayout, QLabel, QHBoxLayout, QMessageBox, QGroupBox, QPushButton
 
 from dao.controller_dao import ControllerDAO
+from .alertThread import AlertThread
 from .blankTestPage import BlankTestPage
 from .subjectListPage import SubjectListPage
 from .measurementListPage import MeasurementListPage
@@ -85,6 +86,8 @@ class MainPage(QWidget):
     def __init__(self):
         super(MainPage, self).__init__()
 
+        self.alertThread = AlertThread()
+
         self.supervisorDAO = SupervisorDAO()
         self.infoSupervisor = self.supervisorDAO.supervisorInfo
         self.stackedWidget = StackedWidget()
@@ -157,12 +160,11 @@ class MainPage(QWidget):
         self.measurementListPage.btnPredict.clicked.connect(self.setPrediction)
         self.measurementPage.btnBack.clicked.connect(self.setBackClicked)
         self.predictionPage.btnBack.clicked.connect(self.setBackClicked)
+        self.btnBlankTest.clicked.connect(self.alertThread.getStatus)
         # ControllerDAO.getInstance().getAPI().exam.focusController.statusSignal.connect(self.getStatus)
         # ControllerDAO.getInstance().getAPI().exam.focusController.emitStatusSignal()
 
-    @Slot(str)
-    def getStatus(self, status):
-        print(status)
+
 
     def setWidgetIndex(self, index, btnCurrent, btnOthers):
         self.stackedWidget.setCurrentIndex(index)

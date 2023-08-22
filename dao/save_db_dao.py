@@ -1,11 +1,13 @@
 import uuid
 
 import numpy as np
-from PySide6.QtCore import QObject, QDate, Signal
+from PySide6.QtCore import QObject, QDate, Signal, Qt
 from PySide6.QtSql import QSqlQuery, QSqlDatabase
 
+from . import SelectedSubjectData
 from .user_dao import UserDAO
 from .supervisor_dao import SupervisorDAO
+
 
 class ChartNumAlreadyExistsError(Exception):
     pass
@@ -54,6 +56,9 @@ class SaveDAO(QObject):
         SQL.bindValue(":chartNum", _chartNum)
         SQL.bindValue(":uuid", file_name)
 
+        SelectedSubjectData.setMeasurementDate(QDate.currentDate())
+        SelectedSubjectData.setUUID(file_name)
+
         # 쿼리 실행
         if not SQL.exec():
             raise Exception('Query Error: ' + SQL.lastError().text())
@@ -61,11 +66,24 @@ class SaveDAO(QObject):
         print(f"Data for chart number {_chartNum} has been saved successfully.")
 
     @classmethod
-    def savePredictionData(cls, _chartNum:str, _uuid:uuid):
-        pass
-# _diagnosisDate:QDate
-        # 어레이 로컬에 저장, 파일 이름은 uuid로
-        # 어레이 로컬에 저장하면 그 파일 이름(경로) MySQL에 저장
-        # =>
-        # uuid를 measurement에 같이 저장하고, 파일이름 uuid로
+    def savePredictionData(cls, _chartNum: str, _uuid: str, diagnosisResult: int):
+        print("This is savePredictionData")
+        cls.connectDatabase()
+        SQL = QSqlQuery(cls._db)
+
+        # 오늘 날짜를 문자열 형태로 가져오기
+        diagnosisDate = QDate.currentDate().toString(Qt.ISODate)
+
+        # 업데이트 쿼리를 준비
+        SQL.prepare(
+            "UPDATE measurement_test SET diagnosisDate = :diagnosisDate, diagnosisResult = :diagnosisResult "
+            "WHERE chartNum = :chartNum AND uuid = :uuid")
+
+        SQL.bindValue(":chartNum", _chartNum)
+        SQL.bindValue(":uuid", _uuid)
+        SQL.bindValue(":diagnosisDate", diagnosisDate)
+        SQL.bindValue(":diagnosisResult", diagnosisResult)
+        if not SQL.exec_():
+            print(SQL.lastError().text())  # 오류 메시지 출력
+
 

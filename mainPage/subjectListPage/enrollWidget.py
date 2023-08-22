@@ -2,7 +2,8 @@ import datetime
 
 from PySide6.QtGui import QRegularExpressionValidator
 from PySide6.QtSql import QSqlQuery
-from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QGroupBox, QComboBox, QHBoxLayout, QRadioButton, QButtonGroup, \
+from PySide6.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QVBoxLayout, QGroupBox, QComboBox, QHBoxLayout, \
+    QRadioButton, QButtonGroup, \
     QMessageBox
 from PySide6.QtCore import Qt, Signal, QDate, QRegularExpression
 
@@ -27,6 +28,10 @@ class EnrollWidget(QWidget):
         self.hboxBack.addWidget(self.btnBack)
         self.hboxBack.addStretch(1)
 
+        lblChartNum = QLabel("차트번호")
+        self.editChartNum = QLineEdit()
+        self.editChartNum.setPlaceholderText("차트번호를 입력해주세요.")
+
         lblName = QLabel("성명")
         self.editName = QLineEdit()
         self.editName.setPlaceholderText("성명을 입력해주세요.")
@@ -39,7 +44,7 @@ class EnrollWidget(QWidget):
         self.editYear.setMaxLength(4)
 
         self.editMonth = QComboBox()
-        self.editMonth.addItem("월")
+        self.editMonth.setPlaceholderText("월")
         self.editMonth.addItems(str(mm) for mm in range(1, 13))
 
         self.editDay = QLineEdit()
@@ -71,9 +76,18 @@ class EnrollWidget(QWidget):
         self.editPhoneNum = QLineEdit()
         self.editPhoneNum.setPlaceholderText("전화번호를 입력해주세요.")
 
+        hboxProfessor = QHBoxLayout()
         lblProfessor = QLabel("담당교수")
-        self.editProfessor = QLineEdit()
-        self.editProfessor.setPlaceholderText("성명을 입력해주세요.")
+        self.editProfessor = QComboBox()
+        self.editProfessor.setPlaceholderText("담당교수를 선택해주세요.")
+        self.editProfessor.addItem("담당교수 추가...")
+        self.editProfessor.insertSeparator(1)
+        self.editProfessor.addItems(SubjectDAO.getExistProfessors())
+        self.addButton = QPushButton("확인")
+        self.addButton.clicked.connect(self.addEditProfessor)
+        self.addButton.hide()
+        hboxProfessor.addWidget(self.editProfessor)
+        hboxProfessor.addWidget(self.addButton)
 
         lblSupervisor = QLabel("사용자")
         self.editSupervisor = QLineEdit()
@@ -86,12 +100,17 @@ class EnrollWidget(QWidget):
         self.editName.textEdited.connect(lambda: Check.checkValidityName(self.editName))
         self.editYear.textEdited.connect(lambda: Check.checkValidityBirthYear(self.editYear))
         self.editPhoneNum.textEdited.connect(lambda: Check.checkValidityPhoneNum(self.editPhoneNum))
-        self.editProfessor.textEdited.connect(lambda: Check.checkValidityName(self.editProfessor))
+        self.editChartNum.textEdited.connect(lambda: Check.checkValidityChartNum(self.editChartNum))
+
+        self.editProfessor.currentIndexChanged.connect(self.onEditProfessorChanged)
 
         vbox = QVBoxLayout()
 
         gBoxPrivate = QGroupBox()
         vboxPrivate = QVBoxLayout()
+
+        vboxPrivate.addWidget(lblChartNum)
+        vboxPrivate.addWidget(self.editChartNum)
 
         vboxPrivate.addWidget(lblName)
         vboxPrivate.addWidget(self.editName)
@@ -108,7 +127,7 @@ class EnrollWidget(QWidget):
         vBoxAddition.addWidget(lblPhoneNum)
         vBoxAddition.addWidget(self.editPhoneNum)
         vBoxAddition.addWidget(lblProfessor)
-        vBoxAddition.addWidget(self.editProfessor)
+        vBoxAddition.addLayout(hboxProfessor)
         vBoxAddition.addWidget(lblSupervisor)
         vBoxAddition.addWidget(self.editSupervisor)
         gBoxAddition.setLayout(vBoxAddition)
@@ -120,10 +139,44 @@ class EnrollWidget(QWidget):
 
         self.setLayout(vbox)
 
+    def onEditProfessorChanged(self, index):
+        if self.editProfessor.currentIndex() == 0:
+            self.editProfessor.setEditable(True)
+            self.editProfessor.setFocus()
+            self.editProfessor.clearEditText()
+            self.addButton.show()
+        else:
+            self.editProfessor.setEditable(False)
+            self.addButton.hide()
+
+    def addEditProfessor(self):
+        custom_text = self.editProfessor.currentText()
+        if custom_text and custom_text != "담당교수 추가..." and \
+                custom_text not in [self.editProfessor.itemText(i) for i in range(self.editProfessor.count())]:
+            self.editProfessor.insertItem(self.editProfessor.count(), custom_text)
+            self.editProfessor.setCurrentText(custom_text)
+            self.editProfessor.setEditable(False)
+            self.addButton.hide()
+
     def checkForm(self):
+
+        if self._chartNum == "" or len(str(self._chartNum)) != 9:
+            self.editChartNum.setFocus()
+            if self._chartNum == "":
+                self.editChartNum.clear()
+                self.editChartNum.setPlaceholderText("차트번호를 입력해주세요.")
+            elif len(str(self._chartNum)) != 9:
+                self.editChartNum.clear()
+                self.editChartNum.setPlaceholderText("차트번호 형식이 잘못되었습니다.")
+            return False
+
         if self._name == "":
             self.editName.setFocus()
             self.editName.setPlaceholderText("이름을 입력해주세요.")
+            return False
+
+        if self.editMonth.currentIndex() == -1:
+            self.editMonth.setFocus()
             return False
 
         if self._gender is None:
@@ -135,35 +188,42 @@ class EnrollWidget(QWidget):
             self.editPhoneNum.setPlaceholderText("연락처를 입력해주세요.")
             return False
 
-        if self._professor == "":
+        if self.editProfessor.currentIndex() == -1:
             self.editProfessor.setFocus()
-            self.editProfessor.setPlaceholderText("담당교수를 입력해주세요.")
             return False
 
         if not Check.checkValidityBirthDate(self._birth_date, self.editYear, self.editMonth, self.editDay):
             self.editYear.setStyleSheet("QLineEdit {border : 1px solid red;}")
-            self.editMonth.setStyleSheet("QLineEdit {border : 1px solid red;}")
+            self.editMonth.setStyleSheet("QComboBox {border : 1px solid red;}")
             self.editDay.setStyleSheet("QLineEdit {border : 1px solid red;}")
             return False
 
         return self.tryEnroll()
 
     def tryEnroll(self):
-        if SubjectDAO.enroll(self._name, self._birth_date, self._gender, self._phone_num,
-                             self._professor, self._supervisor, self._enroll_date):
-            reply = QMessageBox.information(self, 'Success', 'Enrolled successfully', QMessageBox.Ok)
-            if reply == QMessageBox.Ok:
-                self.clearForm()
-                return True
+        if not SubjectDAO.checkChartNumExists(self._chartNum):
+            if SubjectDAO.enroll(self._chartNum, self._name, self._birth_date, self._gender, self._phone_num,
+                                 self._professor, self._supervisor, self._enroll_date):
+                reply = QMessageBox.information(self, 'Success', 'Enrolled successfully', QMessageBox.Ok)
+                if reply == QMessageBox.Ok:
+                    self.clearForm()
+                    return True
 
     def clearForm(self):
         self.editName.setText("")
         self.btnGenderGroup.button(2).setChecked(True)
         self.editPhoneNum.setText("")
-        self.editProfessor.setText("")
+        self.editProfessor.setCurrentIndex(-1)
         self.editYear.setText("")
-        self.editMonth.setCurrentIndex(0)
+        self.editMonth.setCurrentIndex(-1)
         self.editDay.setText("")
+        self.editYear.setStyleSheet("")
+        self.editMonth.setStyleSheet("")
+        self.editDay.setStyleSheet("")
+
+    @property
+    def _chartNum(self):
+        return self.editChartNum.text()
 
     @property
     def _name(self):
@@ -201,7 +261,7 @@ class EnrollWidget(QWidget):
 
     @property
     def _professor(self):
-        return self.editProfessor.text()
+        return self.editProfessor.currentText()
 
     @property
     def _supervisor(self):

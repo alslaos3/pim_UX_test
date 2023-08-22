@@ -31,8 +31,7 @@ class ResultGraphWidget(QWidget):
         vbox.addLayout(hboxAlign)
         self.setLayout(vbox)
 
-    def update(self):
-        value = random.randint(0, 100)
+    def update(self, value):
         self.roundProgressBar.setValue(value)
 
 

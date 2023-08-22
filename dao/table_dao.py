@@ -1,7 +1,7 @@
 from PySide6.QtSql import QSqlQueryModel
 from PySide6.QtCore import Qt, QObject, QDate, Signal
 from PySide6.QtSql import QSqlQuery, QSqlDatabase
-from PySide6.QtWidgets import QTableView, QAbstractItemView
+from PySide6.QtWidgets import QTableView, QAbstractItemView, QHeaderView
 from .user_dao import UserDAO
 from .selected_subject import SelectedSubjectData
 
@@ -41,6 +41,7 @@ class TableDAO(QObject):
         return self._db
 
     def makeTable(self):
+        self._table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self._table.setSelectionMode(QAbstractItemView.SingleSelection)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         return self._table
