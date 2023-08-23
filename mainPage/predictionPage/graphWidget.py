@@ -30,9 +30,9 @@ class ResultGraphWidget(QWidget):
         hboxAlign.addStretch(1)
         vbox.addLayout(hboxAlign)
         self.setLayout(vbox)
-
-    def update(self, value):
-        self.roundProgressBar.setValue(value)
+    #
+    # def update(self, value):
+    #     self.roundProgressBar.setValue(value)
 
 
 if __name__ == "__main__":
