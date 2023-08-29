@@ -1,0 +1,38 @@
+QWidget {
+    font-family: SUITE;
+    font: 60px;
+}
+
+QPushButton {
+    background-color: #134AAA;
+    border: 1px solid #FFFFFF;
+    border-radius: 10px;
+    padding: 30px;
+    color: #FFFFFF;
+}
+
+QLabel {
+    background-color: transparent;
+    color: #000000;
+    font: 30px;
+
+}
+
+QProgressBar {
+    background-color: rgb(98, 114, 164);
+    color:rgb(200,200,200);
+    border-style: none;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    text-align: center;
+}
+
+QProgressBar::chunk {
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    background-color: qlineargradient(spread:pad, x1:0, y1:0.511364, x2:1, y2:0.523, stop:0 rgba(254, 121, 199, 255), stop:1 rgba(170, 85, 255, 255));
+}

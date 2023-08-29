@@ -1,0 +1,29 @@
+QWidget {
+    font-family: SUITE;
+    font: 40px;
+}
+
+QRoundProgressBar#RoundProgressBar {
+    background-color: transparent;
+}
+QLabel {
+    font: 60px;
+}
+
+QPushButton#SendResult {
+    background-color: #134AAA;
+    border: 1px solid #FFFFFF;
+    border-radius: 10px;
+    padding: 30px;
+    color: #FFFFFF;
+}
+
+QPushButton#Home {
+    background-color: #134AAA;
+    border: 1px solid #FFFFFF;
+    border-radius: 10px;
+    padding: 30px;
+    color: #FFFFFF;
+}
+
+

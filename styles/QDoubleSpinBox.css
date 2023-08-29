@@ -1,0 +1,11 @@
+/* QDoubleSpinBox.css */
+
+QAbstractSpinBox::up-button,
+QAbstractSpinBox::down-button {
+    width: 50px;
+    height: 10px;
+}
+
+QDoubleSpinBox {
+    font: 50px;
+}

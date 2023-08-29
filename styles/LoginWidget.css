@@ -1,0 +1,62 @@
+QWidget {
+    font-family: SUITE;
+    font: 40px;
+}
+
+QLineEdit {
+    background-color: #4A4A4A;
+    border: 1px solid #FFFFFF;
+    border-radius: 10px;
+    padding: 30px;
+    color: #FFFFFF;
+    pointer-events: fill;
+
+}
+
+QPushButton {
+    background-color: #C0B6B6;
+    border: 1px solid #FFFFFF;
+    border-radius: 10px;
+    padding: 30px;
+    color: #FFFFFF;
+}
+
+
+QPushButton#Forgot, QPushButton#SignUp {
+    background-color: transparent;
+    color: #000000;
+    font: 20px;
+}
+
+QPushButton#Back {
+    background-color: #000000;
+    padding: 10px;
+}
+
+QComboBox {
+    border-radius: 10px;
+    padding-left: 10px;
+}
+
+QComboBox::drop-down {
+    border: 5px;
+}
+
+QComboBox::down-arrow {
+    image: url("./images/combobox_down_arrow.png");
+    width: 20px;
+    height: 20px;
+    margin-right: 50px;
+}
+
+QRadioButton::indicator {
+    width: 20px;
+    height: 20px;
+}
+
+QGroupBox  {
+    border: 5px solid gray;
+    border-color: #4A4A4A;
+    font-size: 14px;
+    border-radius: 15px;
+}
