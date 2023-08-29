@@ -25,7 +25,7 @@ class MeasurementListPage(QWidget):
         vbox.addWidget(self.graphWidget)
         vbox.addWidget(self.btnPredict)
         self.setLayout(vbox)
-        self.graphWidget.hide()
+        # self.graphWidget.hide()
 
         self.subjectRecordTable.measurementListSignal.connect(self.getRowSelectedSignal)
 

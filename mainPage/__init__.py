@@ -2,7 +2,7 @@ from PySide6.QtCore import QPropertyAnimation, Property, Signal, Qt, Slot
 from PySide6.QtGui import QPainter, QColor, Qt, QIcon, QAction
 from PySide6.QtSql import QSqlDatabase
 from PySide6.QtWidgets import QWidget, QStackedWidget, QVBoxLayout, QLabel, QHBoxLayout, QMessageBox, QGroupBox, \
-    QPushButton, QTabWidget, QTabBar, QButtonGroup, QToolBar
+    QPushButton, QTabWidget, QTabBar, QButtonGroup, QToolBar, QFormLayout
 
 from dao.controller_dao import ControllerDAO
 from .alertThread import AlertThread
@@ -30,33 +30,60 @@ class MainPage(QWidget):
         self.supervisorDAO = SupervisorDAO()
         self.infoSupervisor = self.supervisorDAO.supervisorInfo
 
-        self.tabWidget = QTabWidget()
+        self.stackedWidget = QStackedWidget()
 
         self.blankTestPage = BlankTestPage()
-        self.tabWidget.addTab(self.blankTestPage, QIcon("../images/icon_example.png"), "Blank Test")
-
         self.subjectListPage = SubjectListPage()
-        self.tabWidget.addTab(self.subjectListPage, QIcon("../images/icon_example.png"), "asdfsa")
-
         self.measurementListPage = MeasurementListPage()
-        self.tabWidget.addTab(self.measurementListPage, QIcon("../images/icon_example.png"), "dfds")
-
         self.predictionListPage = PredictionListPage()
-        self.tabWidget.addTab(self.predictionListPage, QIcon("../images/icon_example.png"), "dsfsd")
+
+        self.stackedWidget.addWidget(self.blankTestPage)
+        self.stackedWidget.addWidget(self.subjectListPage)
+        self.stackedWidget.addWidget(self.measurementListPage)
+        self.stackedWidget.addWidget(self.predictionListPage)
 
         # self.statusWidget = QWidget()
 
         hboxGraph = QHBoxLayout()
-        hboxGraph.addWidget(self.measurementListPage.graphWidget)
-        hboxGraph.addWidget(self.predictionListPage.graphWidget)
+        hboxGraph.addWidget(self.measurementListPage.graphWidget, 1)
+        hboxGraph.addWidget(self.predictionListPage.graphWidget, 1)
+
+        gboxTab = QGroupBox()
+        btnSubjectList = QPushButton("Subject")
+        btnSubjectList.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(1))
+        btnMeasurement = QPushButton("Measurement")
+        btnMeasurement.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(2))
+        btnPrediction = QPushButton("Prediction")
+        btnPrediction.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(3))
+
+        formStatus = QFormLayout()
+        formStatus.addRow("a: ", QLabel("test"))
+        formStatus.addRow("b: ", QLabel("test"))
+        formStatus.addRow("c: ", QLabel("test"))
+        formStatus.addRow("d: ", QLabel("test"))
+        formStatus.addRow("e: ", QLabel("test"))
+        formStatus.addRow("f: ", QLabel("test"))
+
+        gboxStatus = QGroupBox()
+        gboxStatus.setLayout(formStatus)
+
+        vboxBtn = QVBoxLayout()
+        vboxBtn.addWidget(btnSubjectList)
+        vboxBtn.addWidget(btnMeasurement)
+        vboxBtn.addWidget(btnPrediction)
+        gboxTab.setLayout(vboxBtn)
 
         vboxTab = QVBoxLayout()
-        vboxTab.addWidget(self.tabWidget)
-        gboxTab = QGroupBox()
-        gboxTab.setLayout(vboxTab)
+        vboxTab.addWidget(gboxTab)
+        vboxTab.addWidget(gboxStatus)
+        vboxTab.addStretch()
+
+        hboxMain = QHBoxLayout()
+        hboxMain.addLayout(vboxTab)
+        hboxMain.addWidget(self.stackedWidget)
 
         vbox = QVBoxLayout()
-        vbox.addWidget(gboxTab)
+        vbox.addLayout(hboxMain)
         vbox.addLayout(hboxGraph)
         self.setLayout(vbox)
 
@@ -67,11 +94,6 @@ class MainPage(QWidget):
         # self.tabWidget.addWidget(self.predictionPage)
         #
         # self.btnSignOut = SignOutWidget()
-
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.tabWidget)
-
-        self.setLayout(vbox)
 
     # def show(self):
     #     self.supervisorSignal.emit(self.supervisorDAO.sv_name,

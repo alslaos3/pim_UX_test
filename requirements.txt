@@ -8,5 +8,13 @@ requests==2.31.0
 shiboken6==6.5.1.1
 urllib3==2.0.4
 
-seatease~=0.4.0
-seabreeze~=2.4.0
+resumeFocusing -> 측정용
+initFocusing -> 디바이스 init용
+검체체크 -> blankTest용
+
+기기 로그인 -> initFocusing -> 검체 확인 되면 ->resumeFocusing -> blankTest 값이 나옴 (이건 임의로 설정해야함 : 초점이 잡힘)
+measure -> 포커싱+측정 -> resumeFocusing +
+
+focusController + stage + laser + spectrometer 를 관리할 real.py 과 같은 클래스를 만듬
+real.py 의 exam과 같은 인스턴스를 단 한번만 init 할 클래스 ( classmethod 로 된) 가 필요함 (controller_dao)
+단 한번만 호출하는 것이 그거임 그거

@@ -15,23 +15,24 @@ class SubjectListWidget(QWidget):
         self.btnNewEnroll = QPushButton("신규 등록")
         self.btnMeasurement = QPushButton("Measurement")
 
-        self.searchEngineWidget = SearchEngineWidget(1)
+        # self.searchEngineWidget = SearchEngineWidget(1)
         self.subjectRecordTable = SubjectRecordTable()
-        self.searchEngineWidget.btnSearch.clicked.connect(self.searchEngineWidget.emitSearchSignal)
-        self.searchEngineWidget.searchSignal.connect(self.subjectRecordTable.searchClicked)
+        # self.searchEngineWidget.btnSearch.clicked.connect(self.searchEngineWidget.emitSearchSignal)
+        # self.searchEngineWidget.searchSignal.connect(self.subjectRecordTable.searchClicked)
 
         # self.btnMeasurement.clicked.connect(self.measurementClicked)
 
         vbox = QVBoxLayout()
-        vbox.addWidget(self.searchEngineWidget)
+        # vbox.addWidget(self.searchEngineWidget)
         vbox.addWidget(self.btnNewEnroll)
         vbox.addWidget(self.subjectRecordTable)
         vbox.addWidget(self.btnMeasurement)
         self.setLayout(vbox)
 
     def enrollComplete(self, arg__1):
-        self.searchEngineWidget.editChartNum.setText(str(arg__1))
-        self.searchEngineWidget.btnSearch.click()
+        pass
+    #     self.searchEngineWidget.editChartNum.setText(str(arg__1))
+    #     self.searchEngineWidget.btnSearch.click()
 
 
     # 잘 작동함

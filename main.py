@@ -100,38 +100,15 @@ class PimBody(QApplication):
         _iconModifyUser = QIcon("images/icon_example.png")
         self._actModifyUser = QAction(_iconModifyUser, "modify_user", self)
         self._topToolBar.addAction(self._actModifyUser)
+        self._actSearch.connect(self._mainPage)
 
         self.w.addToolBar(Qt.TopToolBarArea, self._topToolBar)
-
-    def addLeftToolBar(self):
-        self._leftToolBar = QToolBar()
-
-        # _iconLogo = QIcon("images/icon_example.png")
-        self._actSubject = QAction("Subject List", self)
-        self._leftToolBar.addAction(self._actSubject)
-
-        # _iconMeasure = QIcon("images/icon_example.png")
-        self._actMeasureList = QAction("measure", self)
-        self._leftToolBar.addAction(self._actMeausureList)
-
-        # _iconPrediction = QIcon("images/icon_example.png")
-        self._actPrediction = QAction(_iconPrediction, "prediction", self)
-        self._leftToolBar.addAction(self._actionPrediction)
-
-        # _iconSearch = QIcon("images/icon_example.png")
-        self._actionSearch = QAction(_iconSearch, "search", self)
-        self._leftToolBar.addAction(self._actionSearch)
-
-        # _iconModifyUser = QIcon("images/icon_example.png")
-        self._actionModifyUser = QAction(_iconModifyUser, "modify_user", self)
-        self._leftToolBar.addAction(self._actionModifyUser)
-
-        self.w.addToolBar(Qt.LeftToolBarArea, self._leftToolBar)
 
     @Slot()
     def showMainPage(self):
         self._mainPage = MainPage()
         self.w.setCentralWidget(self._mainPage)
+        self.addTopToolBar()
         self._mainPage.supervisorSignal.connect(self.getStatusBarArgs)
         self._mainPage.signOutSignal.connect(self.showLoginPage)
 
